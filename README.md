@@ -28,6 +28,7 @@ Una aplicación frontend moderna para gestión de clientes construida con React,
 La aplicación incluye un sistema de autenticación JWT completamente funcional:
 
 ### 🚪 **Login**
+
 - **Validación de formularios** en tiempo real con Bootstrap
 - **Diseño glassmorphism** con gradientes modernos
 - **Estados de carga** y manejo de errores
@@ -35,6 +36,7 @@ La aplicación incluye un sistema de autenticación JWT completamente funcional:
 - **Redirección inteligente** después del login exitoso
 
 ### 👤 **Registro**
+
 - **Formulario completo** con validación de campos
 - **Confirmación de contraseña** con verificación en tiempo real
 - **Validación de email** con expresiones regulares
@@ -42,12 +44,14 @@ La aplicación incluye un sistema de autenticación JWT completamente funcional:
 - **Diseño responsive** con React Bootstrap
 
 ### 🔐 **Características de Seguridad**
+
 - **JWT Tokens** para autenticación
 - **Sesiones persistentes** con localStorage
 - **Rutas protegidas** con ProtectedRoute component
 - **Logout automático** en caso de tokens expirados
 
 ### 🌐 **Backend Integration**
+
 - **API REST** con endpoint: `https://managerial-teresa-pablo-sarasua-df7cefa1.koyeb.app/`
 - **Registro de usuarios** con validación de duplicados
 - **Login seguro** con hash de contraseñas
@@ -150,17 +154,17 @@ npm run dev
 Los componentes utilizan React Bootstrap. Para personalizar:
 
 ```jsx
-import { Button, Card, Form } from 'react-bootstrap';
+import { Button, Card, Form } from "react-bootstrap";
 
 // Personalizar con props y className
-<Button 
-  variant="primary" 
+<Button
+  variant="primary"
   size="lg"
   className="custom-class"
-  style={{ background: 'linear-gradient(...)' }}
+  style={{ background: "linear-gradient(...)" }}
 >
   Mi Botón
-</Button>
+</Button>;
 ```
 
 ### **Agregar Nuevos Componentes**
@@ -169,8 +173,8 @@ import { Button, Card, Form } from 'react-bootstrap';
 2. Importa React Bootstrap components necesarios:
 
 ```jsx
-import { Container, Row, Col, Card } from 'react-bootstrap';
-import { FaIcon } from 'react-icons/fa';
+import { Container, Row, Col, Card } from "react-bootstrap";
+import { FaIcon } from "react-icons/fa";
 ```
 
 3. Mantén consistencia con el diseño Bootstrap establecido
@@ -189,7 +193,7 @@ Los componentes de auth están en `src/components/`:
 Modifica `src/services/apiService.js`:
 
 ```javascript
-const API_BASE_URL = 'https://tu-api-backend.com';
+const API_BASE_URL = "https://tu-api-backend.com";
 // Actualiza endpoints según tu API
 ```
 
