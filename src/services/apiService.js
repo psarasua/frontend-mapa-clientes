@@ -1,7 +1,8 @@
 // Configuración base de la API
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL ||
-  "https://managerial-teresa-pablo-sarasua-df7cefa1.koyeb.app";
+const API_BASE_URL = import.meta.env.DEV
+  ? "" // En desarrollo usar proxy local configurado en vite.config.js
+  : import.meta.env.VITE_API_URL ||
+    "https://managerial-teresa-pablo-sarasua-df7cefa1.koyeb.app";
 
 // Clase para manejar las peticiones HTTP
 class ApiService {
@@ -27,23 +28,42 @@ class ApiService {
       config.headers.Authorization = `Bearer ${this.token}`;
     }
 
+    console.log("🚀 Request URL:", url); // Debug
+    console.log("🚀 Request config:", config); // Debug
+
     try {
       const response = await fetch(url, config);
 
-      // Si la respuesta no es exitosa, lanzar error
+      console.log("📡 Response status:", response.status); // Debug
+      console.log("📡 Response headers:", [...response.headers.entries()]); // Debug
+
+      // Si la respuesta no es exitosa, obtener más detalles del error
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
+        const errorText = await response.text();
+        console.error("❌ Error response body:", errorText); // Debug
+
+        let errorData = {};
+        try {
+          errorData = JSON.parse(errorText);
+        } catch (e) {
+          // Si no se puede parsear como JSON, usar el texto directamente
+          errorData = { error: errorText };
+        }
+
         throw new Error(
-          errorData.message ||
+          errorData.error ||
+            errorData.message ||
+            errorText ||
             `HTTP Error: ${response.status} ${response.statusText}`
         );
       }
 
       // Intentar parsear como JSON
       const data = await response.json();
+      console.log("✅ Response data:", data); // Debug
       return data;
     } catch (error) {
-      console.error(`API Error (${endpoint}):`, error);
+      console.error("💥 Request failed:", error); // Debug
       throw error;
     }
   }

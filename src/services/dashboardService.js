@@ -39,7 +39,6 @@ class DashboardService {
 
       // Si no encontramos endpoints del backend, usar datos simulados
       if (!data) {
-        console.warn("Dashboard endpoints not found, using simulated data");
         data = this.getSimulatedData();
       }
 
@@ -53,9 +52,7 @@ class DashboardService {
       });
 
       return normalizedData;
-    } catch (error) {
-      console.error("Error fetching dashboard data:", error);
-
+    } catch {
       // Retornar datos simulados como fallback
       return this.getSimulatedData();
     }
@@ -84,8 +81,7 @@ class DashboardService {
 
       // Fallback a datos simulados
       return this.getSimulatedClientes();
-    } catch (error) {
-      console.error("Error fetching clientes:", error);
+    } catch {
       return this.getSimulatedClientes();
     }
   }
@@ -111,8 +107,7 @@ class DashboardService {
 
       // Fallback a datos simulados
       return this.getSimulatedRutas();
-    } catch (error) {
-      console.error("Error fetching rutas:", error);
+    } catch {
       return this.getSimulatedRutas();
     }
   }

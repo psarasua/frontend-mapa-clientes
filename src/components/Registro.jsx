@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Box,
   Card,
@@ -19,18 +19,22 @@ import {
   VisibilityOff,
   Person,
   Lock,
+  Email,
   LocationOn,
+  PersonAdd,
 } from "@mui/icons-material";
 import { useAuth } from "../contexts/AuthContext";
 
-const Login = () => {
+const Registro = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const { login } = useAuth();
-  
+  const { register } = useAuth();
+
   const [formData, setFormData] = useState({
+    nombre_completo: "",
     username: "",
+    email: "",
     password: "",
+    confirmPassword: "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
@@ -52,14 +56,43 @@ const Login = () => {
   };
 
   const validateForm = () => {
-    if (!formData.username.trim()) {
-      setError("Por favor ingresa tu usuario");
+    // Validar nombre completo
+    if (!formData.nombre_completo.trim()) {
+      setError("El nombre completo es requerido");
       setSnackbarOpen(true);
       return false;
     }
 
+    // Validar username
+    if (!formData.username.trim()) {
+      setError("El usuario es requerido");
+      setSnackbarOpen(true);
+      return false;
+    }
+
+    if (formData.username.length < 3) {
+      setError("El usuario debe tener al menos 3 caracteres");
+      setSnackbarOpen(true);
+      return false;
+    }
+
+    // Validar email
+    if (!formData.email.trim()) {
+      setError("El email es requerido");
+      setSnackbarOpen(true);
+      return false;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setError("Por favor ingresa un email válido");
+      setSnackbarOpen(true);
+      return false;
+    }
+
+    // Validar contraseña
     if (!formData.password.trim()) {
-      setError("Por favor ingresa tu contraseña");
+      setError("La contraseña es requerida");
       setSnackbarOpen(true);
       return false;
     }
@@ -70,29 +103,43 @@ const Login = () => {
       return false;
     }
 
+    // Validar confirmación de contraseña
+    if (formData.password !== formData.confirmPassword) {
+      setError("Las contraseñas no coinciden");
+      setSnackbarOpen(true);
+      return false;
+    }
+
     return true;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
     setLoading(true);
-    
+
     try {
-      const result = await login(formData);
-      
+      // Preparar datos para enviar al backend
+      const userData = {
+        nombre_completo: formData.nombre_completo.trim(),
+        username: formData.username.trim(),
+        email: formData.email.trim(),
+        password: formData.password,
+      };
+
+      const result = await register(userData);
+
       if (result.success) {
-        // Redirigir a la página que el usuario intentaba acceder o al dashboard
-        const from = location.state?.from?.pathname || "/dashboard";
-        navigate(from, { replace: true });
+        // Redirigir al dashboard después del registro exitoso
+        navigate("/dashboard", { replace: true });
       } else {
-        setError(result.error || "Error al iniciar sesión");
+        setError(result.error || "Error al crear usuario");
         setSnackbarOpen(true);
       }
     } catch (error) {
-      setError(error.message || "Error al iniciar sesión. Intenta nuevamente.");
+      setError(error.message || "Error al crear usuario. Intenta nuevamente.");
       setSnackbarOpen(true);
     } finally {
       setLoading(false);
@@ -108,16 +155,17 @@ const Login = () => {
         background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
         position: "relative",
         overflow: "hidden",
+        py: 4,
       }}
     >
       {/* Elementos decorativos de fondo */}
       <Box
         sx={{
           position: "absolute",
-          top: "10%",
-          left: "10%",
-          width: 100,
-          height: 100,
+          top: "5%",
+          left: "5%",
+          width: 80,
+          height: 80,
           borderRadius: "50%",
           background: "rgba(255, 255, 255, 0.1)",
           animation: "float 6s ease-in-out infinite",
@@ -126,10 +174,10 @@ const Login = () => {
       <Box
         sx={{
           position: "absolute",
-          top: "60%",
-          right: "15%",
-          width: 150,
-          height: 150,
+          top: "70%",
+          right: "10%",
+          width: 120,
+          height: 120,
           borderRadius: "50%",
           background: "rgba(255, 255, 255, 0.05)",
           animation: "float 8s ease-in-out infinite reverse",
@@ -151,7 +199,7 @@ const Login = () => {
             <CardContent sx={{ p: 6 }}>
               {/* Header */}
               <Box sx={{ textAlign: "center", mb: 4 }}>
-                <LocationOn
+                <PersonAdd
                   sx={{
                     fontSize: 60,
                     color: "white",
@@ -169,7 +217,7 @@ const Login = () => {
                     textShadow: "0 2px 4px rgba(0,0,0,0.3)",
                   }}
                 >
-                  Iniciar Sesión
+                  Crear Usuario
                 </Typography>
                 <Typography
                   variant="body1"
@@ -178,7 +226,7 @@ const Login = () => {
                     fontSize: "1.1rem",
                   }}
                 >
-                  Accede a tu cuenta para continuar
+                  Completa los datos para crear tu cuenta
                 </Typography>
               </Box>
 
@@ -190,6 +238,43 @@ const Login = () => {
               >
                 <TextField
                   fullWidth
+                  name="nombre_completo"
+                  label="Nombre Completo"
+                  value={formData.nombre_completo}
+                  onChange={handleChange}
+                  disabled={loading}
+                  autoComplete="name"
+                  sx={{ mb: 3 }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Person sx={{ color: "text.secondary" }} />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+
+                <TextField
+                  fullWidth
+                  name="email"
+                  label="Email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  disabled={loading}
+                  autoComplete="email"
+                  sx={{ mb: 3 }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Email sx={{ color: "text.secondary" }} />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+
+                <TextField
+                  fullWidth
                   name="username"
                   label="Usuario"
                   value={formData.username}
@@ -197,6 +282,7 @@ const Login = () => {
                   disabled={loading}
                   autoComplete="username"
                   sx={{ mb: 3 }}
+                  helperText="Mínimo 3 caracteres"
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -214,8 +300,9 @@ const Login = () => {
                   value={formData.password}
                   onChange={handleChange}
                   disabled={loading}
-                  autoComplete="current-password"
-                  sx={{ mb: 4 }}
+                  autoComplete="new-password"
+                  helperText="Mínimo 6 caracteres"
+                  sx={{ mb: 3 }}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -236,6 +323,25 @@ const Login = () => {
                   }}
                 />
 
+                <TextField
+                  fullWidth
+                  name="confirmPassword"
+                  label="Confirmar Contraseña"
+                  type={showPassword ? "text" : "password"}
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  disabled={loading}
+                  autoComplete="new-password"
+                  sx={{ mb: 4 }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Lock sx={{ color: "text.secondary" }} />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+
                 <Button
                   type="submit"
                   fullWidth
@@ -247,32 +353,32 @@ const Login = () => {
                     fontSize: "1rem",
                     fontWeight: 600,
                     background:
-                      "linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)",
+                      "linear-gradient(135deg, #16a34a 0%, #22c55e 100%)",
                     "&:hover": {
                       background:
-                        "linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)",
+                        "linear-gradient(135deg, #15803d 0%, #16a34a 100%)",
                     },
                   }}
                 >
-                  {loading ? "Iniciando sesión..." : "Iniciar Sesión"}
+                  {loading ? "Creando usuario..." : "Crear Usuario"}
                 </Button>
 
-                {/* Link al registro */}
+                {/* Link al login */}
                 <Box sx={{ textAlign: "center", mt: 3 }}>
-                  <Typography 
-                    variant="body2" 
+                  <Typography
+                    variant="body2"
                     sx={{ color: "rgba(255, 255, 255, 0.8)" }}
                   >
-                    ¿No tienes una cuenta?{" "}
+                    ¿Ya tienes una cuenta?{" "}
                     <Link
-                      to="/registro"
+                      to="/login"
                       style={{
                         color: "white",
                         textDecoration: "none",
                         fontWeight: 600,
                       }}
                     >
-                      Crear Usuario
+                      Iniciar Sesión
                     </Link>
                   </Typography>
                 </Box>
@@ -302,4 +408,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Registro;

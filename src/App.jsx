@@ -1,52 +1,84 @@
-﻿import { useState, useEffect } from "react";
-import { Box } from "@mui/material";
+﻿import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { ThemeProvider, createTheme } from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
+import { AuthProvider } from "./contexts/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./components/Login";
-import authService from "./services/authService";
+import Registro from "./components/Registro";
+import Dashboard from "./components/Dashboard";
 import "./App.css";
 
+// Configurar tema personalizado
+const theme = createTheme({
+  palette: {
+    mode: "light",
+    primary: {
+      main: "#667eea",
+    },
+    secondary: {
+      main: "#764ba2",
+    },
+    background: {
+      default: "#f5f5f5",
+    },
+  },
+  typography: {
+    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+  },
+  components: {
+    MuiTextField: {
+      styleOverrides: {
+        root: {
+          "& .MuiOutlinedInput-root": {
+            backgroundColor: "rgba(255, 255, 255, 0.9)",
+            "&:hover": {
+              backgroundColor: "rgba(255, 255, 255, 1)",
+            },
+            "&.Mui-focused": {
+              backgroundColor: "rgba(255, 255, 255, 1)",
+            },
+          },
+        },
+      },
+    },
+  },
+});
+
 function App() {
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    if (authService.isUserAuthenticated()) {
-      const currentUser = authService.getCurrentUser();
-      setUser({
-        ...currentUser,
-        isAuthenticated: true,
-      });
-    }
-  }, []);
-
-  const handleLogin = (userData) => {
-    setUser(userData);
-  };
-
-  const handleLogout = () => {
-    authService.logout();
-    setUser(null);
-  };
-
-  if (!user?.isAuthenticated) {
-    return <Login onLogin={handleLogin} />;
-  }
-
   return (
-    <Box
-      sx={{
-        flexGrow: 1,
-        backgroundColor: "background.default",
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <Box sx={{ textAlign: "center" }}>
-        <h1>¡Bienvenido, {user.username || user.name}!</h1>
-        <p>Aplicación cargada correctamente</p>
-        <button onClick={handleLogout}>Cerrar Sesión</button>
-      </Box>
-    </Box>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <AuthProvider>
+        <Router>
+          <Routes>
+            {/* Rutas públicas */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/registro" element={<Registro />} />
+
+            {/* Rutas protegidas */}
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Redirección por defecto */}
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+
+            {/* Ruta 404 - redirige a dashboard */}
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </Routes>
+        </Router>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

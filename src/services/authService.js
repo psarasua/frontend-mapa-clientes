@@ -4,156 +4,182 @@ class AuthService {
   constructor() {
     this.user = null;
     this.isAuthenticated = false;
-    this.loadUserFromStorage();
-  }
 
-  // Cargar usuario desde localStorage al inicializar
-  loadUserFromStorage() {
-    try {
-      const userData = localStorage.getItem("user_data");
-      const token = localStorage.getItem("auth_token");
+    // Verificar si hay datos guardados al inicializar
+    const userData = localStorage.getItem("user_data");
+    const token = localStorage.getItem("auth_token");
 
-      if (userData && token) {
+    if (userData && token) {
+      try {
         this.user = JSON.parse(userData);
         this.isAuthenticated = true;
         apiService.setToken(token);
+      } catch (error) {
+        // Si hay error parseando, limpiar datos corruptos
+        this.logout();
       }
-    } catch (error) {
-      console.error("Error loading user from storage:", error);
-      this.logout();
     }
   }
 
-  // Intentar login con el backend
   async login(credentials) {
     try {
-      // Primero intentamos algunos endpoints comunes de autenticación
-      const possibleEndpoints = [
-        "/auth/login",
-        "/login",
-        "/api/auth/login",
-        "/api/login",
-      ];
+      const response = await apiService.post("/api/usuarios/login", {
+        username: credentials.username,
+        password: credentials.password,
+      });
 
-      let response = null;
+      console.log("Respuesta login del servidor:", response); // Debug temporal
 
-      // Intentar cada endpoint hasta encontrar uno que funcione
-      for (const endpoint of possibleEndpoints) {
-        try {
-          response = await apiService.post(endpoint, credentials);
-          break; // Si llegamos aquí, el endpoint funcionó
-        } catch {
-          continue; // Intentar el siguiente endpoint
-        }
-      }
-
-      // Si ningún endpoint funcionó, usar autenticación simulada pero válida
-      if (!response) {
-        console.warn(
-          "Backend authentication endpoints not found, using simulated auth"
-        );
-
-        // Validar credenciales básicas
-        if (!credentials.username?.trim() || !credentials.password?.trim()) {
-          throw new Error("Usuario y contraseña son requeridos");
-        }
-
-        // Simular respuesta del backend
-        response = {
-          user: {
-            id: 1,
-            username: credentials.username,
-            email: `${credentials.username}@ejemplo.com`,
-            name: credentials.username,
-            role: "user",
-          },
-          token: `simulated_token_${Date.now()}`,
-          message:
-            "Login exitoso (simulado - backend endpoints no encontrados)",
+      // Si la respuesta indica error explícitamente
+      if (response.success === false) {
+        return {
+          success: false,
+          error: response.error || "Error en el login",
         };
       }
 
-      // Procesar respuesta exitosa
-      if (response.user && response.token) {
-        this.user = response.user;
+      // Buscar token y usuario en la estructura correcta según tu backend
+      const token = response.data?.token || response.token; // Por si login tiene estructura diferente
+      const user = response.data?.usuario || response.usuario || response.user;
+
+      if (token && user) {
+        this.user = user;
         this.isAuthenticated = true;
 
-        // Guardar en localStorage
-        localStorage.setItem("user_data", JSON.stringify(response.user));
-        localStorage.setItem("auth_token", response.token);
-
-        // Configurar token en apiService
-        apiService.setToken(response.token);
+        localStorage.setItem("user_data", JSON.stringify(user));
+        localStorage.setItem("auth_token", token);
+        apiService.setToken(token);
 
         return {
           success: true,
-          user: this.user,
+          user: user,
+          token: token,
+          usuario: user, // Para compatibilidad
           message: response.message || "Login exitoso",
         };
       } else {
-        throw new Error("Respuesta de login inválida del servidor");
+        console.error("Estructura de respuesta login inesperada:", response);
+        return {
+          success: false,
+          error: "Respuesta inválida del servidor",
+        };
       }
     } catch (error) {
-      console.error("Login error:", error);
+      console.error("Error completo en login:", error);
+
+      if (error.message && error.message.includes("401")) {
+        return {
+          success: false,
+          error: "Usuario o contraseña incorrectos",
+        };
+      }
+
       return {
         success: false,
-        message: error.message || "Error al iniciar sesión",
+        error: error.message || "Error de conexión con el servidor",
       };
     }
   }
 
-  // Cerrar sesión
+  async register(userData) {
+    try {
+      const response = await apiService.post(
+        "/api/usuarios/registro",
+        userData
+      );
+
+      console.log("Respuesta completa del servidor:", response); // Debug temporal
+
+      // Si la respuesta indica error explícitamente, devolver error sin lanzar excepción
+      if (response.success === false) {
+        return {
+          success: false,
+          error: response.error || "Error en el registro",
+        };
+      }
+
+      // Buscar token y usuario en la estructura correcta según tu backend
+      const token = response.data?.token;
+      const user = response.data?.usuario;
+
+      console.log("Token encontrado:", !!token);
+      console.log("Usuario encontrado:", !!user);
+
+      if (token && user) {
+        this.user = user;
+        this.isAuthenticated = true;
+
+        localStorage.setItem("user_data", JSON.stringify(user));
+        localStorage.setItem("auth_token", token);
+        apiService.setToken(token);
+
+        return {
+          success: true,
+          user: user,
+          token: token,
+          usuario: user, // Para compatibilidad con AuthContext
+          message: response.message || "Registro exitoso",
+        };
+      } else {
+        console.error("Estructura de respuesta inesperada:", response);
+        return {
+          success: false,
+          error: "Los datos devueltos por el servidor no son válidos",
+        };
+      }
+    } catch (error) {
+      console.error("Error completo en registro:", error);
+      return {
+        success: false,
+        error: error.message || "Error de conexión con el servidor",
+      };
+    }
+  }
+
   logout() {
     this.user = null;
     this.isAuthenticated = false;
-
-    // Limpiar localStorage
     localStorage.removeItem("user_data");
     localStorage.removeItem("auth_token");
-
-    // Limpiar token del apiService
     apiService.setToken(null);
   }
 
-  // Obtener usuario actual
   getCurrentUser() {
     return this.user;
   }
 
-  // Verificar si está autenticado
   isUserAuthenticated() {
-    return this.isAuthenticated && this.user !== null;
+    return this.isAuthenticated;
   }
 
-  // Verificar token con el backend
   async verifyToken() {
     try {
-      const response = await apiService.get("/auth/verify");
-      return response.valid || false;
+      const token = localStorage.getItem("auth_token");
+      if (!token) return false;
+
+      // Aquí podrías hacer una llamada al backend para verificar el token
+      // Por ahora, solo verificamos que exista
+      return true;
     } catch (error) {
-      console.warn("Token verification failed:", error.message);
-      return this.isAuthenticated; // Fallback a estado local si el endpoint no existe
+      this.logout();
+      return false;
     }
   }
 
-  // Refrescar token
   async refreshToken() {
     try {
-      const response = await apiService.post("/auth/refresh");
+      const response = await apiService.post("/api/auth/refresh");
       if (response.token) {
-        apiService.setToken(response.token);
         localStorage.setItem("auth_token", response.token);
-        return true;
+        apiService.setToken(response.token);
+        return response.token;
       }
-      return false;
+      throw new Error("No se pudo refrescar el token");
     } catch (error) {
-      console.warn("Token refresh failed:", error.message);
-      return false;
+      this.logout();
+      throw error;
     }
   }
 }
 
-// Crear instancia singleton
-const authService = new AuthService();
-
-export default authService;
+export default new AuthService();
