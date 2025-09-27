@@ -1,38 +1,57 @@
 # Frontend Mapa Clientes
 
-Una aplicación frontend moderna para gestión de clientes construida con React, Vite y Material UI, con sistema de autenticación y dashboard interactivo.
+Una aplicación frontend moderna para gestión de clientes construida con React, Vite y Bootstrap, con sistema de autenticación completo y dashboard interactivo.
 
 ## 🚀 Tecnologías
 
 - **React 19** - Biblioteca de JavaScript para construir interfaces de usuario
 - **Vite 7** - Herramienta de construcción rápida y moderna
-- **Material UI 7** - Biblioteca de componentes React con Material Design
-- **Emotion** - Biblioteca CSS-in-JS para estilos dinámicos
+- **Bootstrap 5** - Framework CSS para diseño responsive y componentes modernos
+- **React Bootstrap** - Componentes Bootstrap optimizados para React
+- **React Icons** - Biblioteca de iconos escalables y consistentes
+- **React Router** - Enrutamiento y navegación para aplicaciones React
 - **ESLint** - Linter para mantener calidad de código
 
 ## ✨ Características
 
-- 🔐 **Sistema de Login** - Autenticación con diseño moderno y minimalista
-- 🎨 **Tema Profesional** - Paleta de colores cuidadosamente seleccionada
-- 📊 **Dashboard Interactivo** - Métricas y estadísticas en tiempo real
-- 📱 **Diseño Responsive** - Optimizado para todos los dispositivos
-- 🚀 **Animaciones Fluidas** - Transiciones y efectos visuales modernos
-- ⚡ **Hot Module Replacement** - Desarrollo en tiempo real
+- 🔐 **Sistema de Autenticación Completo** - Login y registro con validación robusta
+- 👤 **Gestión de Usuarios** - Registro, autenticación JWT y sesiones persistentes
+- 🎨 **Diseño Bootstrap Moderno** - Interfaz limpia con componentes responsive
+- 📊 **Dashboard Interactivo** - Panel principal con información del usuario
+- 📱 **Diseño Responsive** - Optimizado para móviles, tablets y escritorio
+- 🚀 **Animaciones Fluidas** - Transiciones CSS y efectos glassmorphism
+- 🔒 **Rutas Protegidas** - Control de acceso y redirección automática
+- ⚡ **Hot Module Replacement** - Desarrollo en tiempo real con Vite
 
 ## 🔑 Sistema de Autenticación
 
-La aplicación incluye un sistema de login completamente funcional:
+La aplicación incluye un sistema de autenticación JWT completamente funcional:
 
-- **Validación de formularios** en tiempo real
-- **Diseño glassmorphism** con efectos visuales modernos
+### 🚪 **Login**
+- **Validación de formularios** en tiempo real con Bootstrap
+- **Diseño glassmorphism** con gradientes modernos
 - **Estados de carga** y manejo de errores
-- **Toggle de visibilidad** de contraseña
-- **Animaciones suaves** con Fade transitions
+- **Toggle de visibilidad** de contraseña con React Icons
+- **Redirección inteligente** después del login exitoso
 
-### Credenciales de prueba:
+### 👤 **Registro**
+- **Formulario completo** con validación de campos
+- **Confirmación de contraseña** con verificación en tiempo real
+- **Validación de email** con expresiones regulares
+- **Manejo de errores** del backend y frontend
+- **Diseño responsive** con React Bootstrap
 
-- **Usuario**: Cualquier texto no vacío
-- **Contraseña**: Cualquier texto no vacío
+### 🔐 **Características de Seguridad**
+- **JWT Tokens** para autenticación
+- **Sesiones persistentes** con localStorage
+- **Rutas protegidas** con ProtectedRoute component
+- **Logout automático** en caso de tokens expirados
+
+### 🌐 **Backend Integration**
+- **API REST** con endpoint: `https://managerial-teresa-pablo-sarasua-df7cefa1.koyeb.app/`
+- **Registro de usuarios** con validación de duplicados
+- **Login seguro** con hash de contraseñas
+- **Manejo de errores** HTTP y de red
 
 ## 📦 Instalación
 
@@ -56,33 +75,51 @@ frontend_mapaClientes/
 ├── public/              # Archivos estáticos
 ├── src/
 │   ├── components/      # Componentes reutilizables
-│   │   └── Login.jsx    # Componente de autenticación
+│   │   ├── Login.jsx        # Componente de login con Bootstrap
+│   │   ├── Registro.jsx     # Componente de registro de usuarios
+│   │   ├── Dashboard.jsx    # Panel principal del usuario
+│   │   └── ProtectedRoute.jsx # Componente para rutas protegidas
+│   ├── contexts/        # Context providers
+│   │   └── AuthContext.jsx  # Contexto de autenticación global
+│   ├── services/        # Servicios y utilidades
+│   │   ├── apiService.js    # Cliente HTTP para API calls
+│   │   └── authService.js   # Servicios de autenticación
 │   ├── assets/          # Recursos (imágenes, iconos, etc.)
-│   ├── App.jsx          # Componente principal con dashboard
+│   ├── App.jsx          # Componente principal con rutas
 │   ├── App.css          # Estilos específicos del App
 │   ├── index.css        # Estilos globales
-│   └── main.jsx         # Punto de entrada con tema configurado
+│   └── main.jsx         # Punto de entrada con Bootstrap CSS
 ├── index.html           # Template HTML base
 ├── package.json         # Dependencias y scripts npm
 └── vite.config.js       # Configuración de Vite
 ```
 
-## 🎨 Tema y Diseño
+## 🎨 Diseño y Estilos
 
-### Paleta de Colores
+### 🎨 **Bootstrap 5 Theme**
 
-- **Primario**: Azul moderno (#2563eb)
-- **Secundario**: Gris elegante (#64748b)
-- **Éxito**: Verde (#10b981)
-- **Advertencia**: Ámbar (#f59e0b)
-- **Error**: Rojo (#ef4444)
-- **Información**: Azul (#3b82f6)
+La aplicación utiliza Bootstrap 5 con personalización CSS:
 
-### Tipografía
+- **Primary**: Gradiente azul-púrpura (#667eea → #764ba2)
+- **Success**: Verde moderno (#22c55e)
+- **Danger**: Rojo Bootstrap (#dc3545)
+- **Warning**: Amarillo Bootstrap (#ffc107)
+- **Info**: Azul Bootstrap (#0dcaf0)
 
-- **Fuente Principal**: Inter (Google Fonts)
-- **Fallbacks**: Roboto, Helvetica, Arial, sans-serif
-- **Pesos**: 400, 500, 600, 700
+### 🖼️ **Efectos Visuales**
+
+- **Glassmorphism**: Cards con backdrop-filter y transparencias
+- **Gradientes**: Fondos modernos con transiciones suaves
+- **Animaciones CSS**: Efectos flotantes y transiciones
+- **Shadows**: Sombras sutiles con Bootstrap utilities
+- **Responsive Grid**: Sistema de columnas Bootstrap responsive
+
+### 🔤 **Iconografía**
+
+- **React Icons**: Biblioteca consistente y escalable
+- **Font Awesome**: Iconos de interfaz (FaEye, FaUser, FaLock, etc.)
+- **Tamaños**: Iconos adaptativos según el contexto
+- **Colores**: Integrados con la paleta de Bootstrap
 
 ## 🚀 Desarrollo
 
@@ -97,54 +134,84 @@ npm run dev
 
 3. Los cambios se reflejarán automáticamente en el navegador
 
-## � Dashboard Features
+## 📊 **Dashboard Features**
 
-- **Métricas en tiempo real**: Clientes activos, rutas, conversiones
-- **Tarjetas informativas**: Estadísticas visuales con iconos
-- **Acciones rápidas**: Botones para funciones principales
-- **Estado del sistema**: Indicadores de conexión y servicios
-- **Perfil de usuario**: Menú desplegable con opciones de cuenta
+- **Perfil de Usuario**: Información completa del usuario autenticado
+- **Navegación**: Navbar responsive con menú desplegable
+- **Cards Informativas**: Estadísticas con iconos de React Icons
+- **Logout**: Funcionalidad de cierre de sesión segura
+- **Diseño Responsive**: Adaptable a móviles y escritorio
+- **Estado del Sistema**: Indicadores visuales del estado de conexión
 
 ## 🛠️ Personalización
 
-### Modificar el Tema
+### **Modificar Componentes Bootstrap**
 
-Edita el archivo `src/main.jsx` para personalizar colores, tipografía y componentes:
+Los componentes utilizan React Bootstrap. Para personalizar:
 
-```javascript
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: "#tu-color-primario",
-    },
-    // ... más configuraciones
-  },
-});
+```jsx
+import { Button, Card, Form } from 'react-bootstrap';
+
+// Personalizar con props y className
+<Button 
+  variant="primary" 
+  size="lg"
+  className="custom-class"
+  style={{ background: 'linear-gradient(...)' }}
+>
+  Mi Botón
+</Button>
 ```
 
-### Agregar Nuevos Componentes
+### **Agregar Nuevos Componentes**
 
 1. Crea archivos `.jsx` en `src/components/`
-2. Importa Material UI components según necesites
-3. Mantén la consistencia con el tema establecido
+2. Importa React Bootstrap components necesarios:
 
-### Customizar el Login
+```jsx
+import { Container, Row, Col, Card } from 'react-bootstrap';
+import { FaIcon } from 'react-icons/fa';
+```
 
-El componente Login está en `src/components/Login.jsx` y puedes:
+3. Mantén consistencia con el diseño Bootstrap establecido
 
-- Cambiar los campos del formulario
-- Modificar la validación
-- Integrar con APIs reales
-- Personalizar el diseño visual
+### **Customizar Autenticación**
+
+Los componentes de auth están en `src/components/`:
+
+- **Login.jsx**: Formulario de inicio de sesión
+- **Registro.jsx**: Formulario de registro de usuarios
+- **AuthContext.jsx**: Lógica de autenticación global
+- **authService.js**: Servicios de API para auth
+
+### **Integrar con Nueva API**
+
+Modifica `src/services/apiService.js`:
+
+```javascript
+const API_BASE_URL = 'https://tu-api-backend.com';
+// Actualiza endpoints según tu API
+```
 
 ## 🔧 Próximas Funcionalidades
 
-- 🗺️ Integración con mapas interactivos
-- 👥 Gestión completa de clientes
-- 📈 Reportes y analytics avanzados
-- 🔄 Sincronización en tiempo real
-- 📱 Aplicación PWA
-- 🌐 Internacionalización (i18n)
+- 🗺️ **Integración con mapas** - Mapbox o Google Maps para visualización
+- 👥 **CRUD de Clientes** - Gestión completa con formularios Bootstrap
+- 📈 **Dashboard Analytics** - Gráficos con React Chart.js
+- 🔄 **WebSocket Integration** - Actualizaciones en tiempo real
+- 📱 **PWA Support** - Aplicación web progresiva
+- 🌐 **Internacionalización** - Soporte multi-idioma con react-i18next
+- 🔔 **Notificaciones** - Sistema de alertas con React Toastify
+- 📄 **Exportar Reportes** - PDF y Excel con jsPDF y xlsx
+
+## 💾 **Migración de Material UI**
+
+Este proyecto fue migrado exitosamente de Material UI a Bootstrap:
+
+- ✅ **Componentes migrados**: Login, Registro, Dashboard, ProtectedRoute
+- ✅ **Funcionalidad preservada**: Autenticación, validación, responsive design
+- ✅ **Archivos respaldados**: Versiones Material UI guardadas con sufijo `-mui-backup.jsx`
+- ✅ **Zero breaking changes**: Toda la funcionalidad mantenida
 
 ## 📱 Responsive Design
 

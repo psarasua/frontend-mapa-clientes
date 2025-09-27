@@ -1,26 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import {
-  Box,
-  Card,
-  CardContent,
-  TextField,
-  Button,
-  Typography,
-  Container,
-  Alert,
-  IconButton,
-  InputAdornment,
-  Fade,
-  Snackbar,
-} from "@mui/material";
-import {
-  Visibility,
-  VisibilityOff,
-  Person,
-  Lock,
-  LocationOn,
-} from "@mui/icons-material";
+import { Container, Row, Col, Card, Form, Button, Alert, Spinner, InputGroup } from 'react-bootstrap';
+import { FaEye, FaEyeSlash, FaUser, FaLock, FaMapMarkerAlt } from 'react-icons/fa';
 import { useAuth } from "../contexts/AuthContext";
 
 const Login = () => {
@@ -35,7 +16,6 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -54,19 +34,16 @@ const Login = () => {
   const validateForm = () => {
     if (!formData.username.trim()) {
       setError("Por favor ingresa tu usuario");
-      setSnackbarOpen(true);
       return false;
     }
 
     if (!formData.password.trim()) {
       setError("Por favor ingresa tu contraseña");
-      setSnackbarOpen(true);
       return false;
     }
 
     if (formData.password.length < 6) {
       setError("La contraseña debe tener al menos 6 caracteres");
-      setSnackbarOpen(true);
       return false;
     }
 
@@ -89,216 +66,187 @@ const Login = () => {
         navigate(from, { replace: true });
       } else {
         setError(result.error || "Error al iniciar sesión");
-        setSnackbarOpen(true);
       }
     } catch (error) {
       setError(error.message || "Error al iniciar sesión. Intenta nuevamente.");
-      setSnackbarOpen(true);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
+    <div 
+      className="min-vh-100 d-flex align-items-center"
+      style={{
         background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
         position: "relative",
-        overflow: "hidden",
+        overflow: "hidden"
       }}
     >
       {/* Elementos decorativos de fondo */}
-      <Box
-        sx={{
+      <div
+        style={{
           position: "absolute",
           top: "10%",
           left: "10%",
-          width: 100,
-          height: 100,
+          width: "100px",
+          height: "100px",
           borderRadius: "50%",
           background: "rgba(255, 255, 255, 0.1)",
-          animation: "float 6s ease-in-out infinite",
+          animation: "float 6s ease-in-out infinite"
         }}
       />
-      <Box
-        sx={{
+      <div
+        style={{
           position: "absolute",
           top: "60%",
           right: "15%",
-          width: 150,
-          height: 150,
+          width: "150px",
+          height: "150px",
           borderRadius: "50%",
           background: "rgba(255, 255, 255, 0.05)",
-          animation: "float 8s ease-in-out infinite reverse",
+          animation: "float 8s ease-in-out infinite reverse"
         }}
       />
 
-      <Container component="main" maxWidth="sm">
-        <Fade in timeout={800}>
-          <Card
-            sx={{
-              backdropFilter: "blur(20px)",
-              background: "rgba(255, 255, 255, 0.15)",
-              border: "1px solid rgba(255, 255, 255, 0.2)",
-              borderRadius: 4,
-              boxShadow: "0 25px 45px rgba(0, 0, 0, 0.1)",
-              overflow: "hidden",
-            }}
-          >
-            <CardContent sx={{ p: 6 }}>
-              {/* Header */}
-              <Box sx={{ textAlign: "center", mb: 4 }}>
-                <LocationOn
-                  sx={{
-                    fontSize: 60,
-                    color: "white",
-                    mb: 2,
-                    filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.3))",
-                  }}
-                />
-                <Typography
-                  variant="h4"
-                  component="h1"
-                  sx={{
-                    fontWeight: "bold",
-                    color: "white",
-                    mb: 1,
-                    textShadow: "0 2px 4px rgba(0,0,0,0.3)",
-                  }}
-                >
-                  Iniciar Sesión
-                </Typography>
-                <Typography
-                  variant="body1"
-                  sx={{
-                    color: "rgba(255, 255, 255, 0.8)",
-                    fontSize: "1.1rem",
-                  }}
-                >
-                  Accede a tu cuenta para continuar
-                </Typography>
-              </Box>
+      <Container>
+        <Row className="justify-content-center">
+          <Col xs={12} sm={10} md={8} lg={6} xl={5}>
+            <Card 
+              className="shadow-lg border-0"
+              style={{
+                backdropFilter: "blur(20px)",
+                background: "rgba(255, 255, 255, 0.15)",
+                border: "1px solid rgba(255, 255, 255, 0.2)",
+                borderRadius: "20px"
+              }}
+            >
+              <Card.Body className="p-5">
+                {/* Header */}
+                <div className="text-center mb-4">
+                  <FaMapMarkerAlt 
+                    size={60} 
+                    className="text-white mb-3"
+                    style={{ filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.3))" }}
+                  />
+                  <h1 className="text-white fw-bold mb-3" style={{ textShadow: "0 2px 4px rgba(0,0,0,0.3)" }}>
+                    Iniciar Sesión
+                  </h1>
+                  <p className="text-white-50 fs-5">
+                    Accede a tu cuenta para continuar
+                  </p>
+                </div>
 
-              {/* Form */}
-              <Box
-                component="form"
-                onSubmit={handleSubmit}
-                sx={{ width: "100%" }}
-              >
-                <TextField
-                  fullWidth
-                  name="username"
-                  label="Usuario"
-                  value={formData.username}
-                  onChange={handleChange}
-                  disabled={loading}
-                  autoComplete="username"
-                  sx={{ mb: 3 }}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Person sx={{ color: "text.secondary" }} />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
+                {/* Error Alert */}
+                {error && (
+                  <Alert variant="danger" className="mb-4">
+                    {error}
+                  </Alert>
+                )}
 
-                <TextField
-                  fullWidth
-                  name="password"
-                  label="Contraseña"
-                  type={showPassword ? "text" : "password"}
-                  value={formData.password}
-                  onChange={handleChange}
-                  disabled={loading}
-                  autoComplete="current-password"
-                  sx={{ mb: 4 }}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Lock sx={{ color: "text.secondary" }} />
-                      </InputAdornment>
-                    ),
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          onClick={handleTogglePassword}
-                          edge="end"
-                          disabled={loading}
-                        >
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
+                {/* Form */}
+                <Form onSubmit={handleSubmit}>
+                  <Form.Group className="mb-3">
+                    <Form.Label className="text-white">Usuario</Form.Label>
+                    <InputGroup>
+                      <InputGroup.Text>
+                        <FaUser className="text-secondary" />
+                      </InputGroup.Text>
+                      <Form.Control
+                        type="text"
+                        name="username"
+                        value={formData.username}
+                        onChange={handleChange}
+                        disabled={loading}
+                        autoComplete="username"
+                        style={{
+                          backgroundColor: "rgba(255, 255, 255, 0.9)",
+                          border: "none"
+                        }}
+                      />
+                    </InputGroup>
+                  </Form.Group>
 
-                <Button
-                  type="submit"
-                  fullWidth
-                  variant="contained"
-                  size="large"
-                  disabled={loading}
-                  sx={{
-                    py: 1.5,
-                    fontSize: "1rem",
-                    fontWeight: 600,
-                    background:
-                      "linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)",
-                    "&:hover": {
-                      background:
-                        "linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)",
-                    },
-                  }}
-                >
-                  {loading ? "Iniciando sesión..." : "Iniciar Sesión"}
-                </Button>
+                  <Form.Group className="mb-4">
+                    <Form.Label className="text-white">Contraseña</Form.Label>
+                    <InputGroup>
+                      <InputGroup.Text>
+                        <FaLock className="text-secondary" />
+                      </InputGroup.Text>
+                      <Form.Control
+                        type={showPassword ? "text" : "password"}
+                        name="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        disabled={loading}
+                        autoComplete="current-password"
+                        style={{
+                          backgroundColor: "rgba(255, 255, 255, 0.9)",
+                          border: "none"
+                        }}
+                      />
+                      <Button
+                        variant="outline-secondary"
+                        onClick={handleTogglePassword}
+                        disabled={loading}
+                        style={{ 
+                          backgroundColor: "rgba(255, 255, 255, 0.9)",
+                          border: "none"
+                        }}
+                      >
+                        {showPassword ? <FaEyeSlash /> : <FaEye />}
+                      </Button>
+                    </InputGroup>
+                  </Form.Group>
 
-                {/* Link al registro */}
-                <Box sx={{ textAlign: "center", mt: 3 }}>
-                  <Typography 
-                    variant="body2" 
-                    sx={{ color: "rgba(255, 255, 255, 0.8)" }}
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    size="lg"
+                    className="w-100 py-3 fw-bold"
+                    disabled={loading}
+                    style={{
+                      background: "linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)",
+                      border: "none",
+                      fontSize: "1rem"
+                    }}
                   >
-                    ¿No tienes una cuenta?{" "}
-                    <Link
-                      to="/registro"
-                      style={{
-                        color: "white",
-                        textDecoration: "none",
-                        fontWeight: 600,
-                      }}
-                    >
-                      Crear Usuario
-                    </Link>
-                  </Typography>
-                </Box>
-              </Box>
-            </CardContent>
-          </Card>
-        </Fade>
+                    {loading ? (
+                      <>
+                        <Spinner animation="border" size="sm" className="me-2" />
+                        Iniciando sesión...
+                      </>
+                    ) : (
+                      "Iniciar Sesión"
+                    )}
+                  </Button>
+
+                  {/* Link al registro */}
+                  <div className="text-center mt-3">
+                    <p className="text-white-50 mb-0">
+                      ¿No tienes una cuenta?{" "}
+                      <Link
+                        to="/registro"
+                        className="text-white text-decoration-none fw-bold"
+                      >
+                        Crear Usuario
+                      </Link>
+                    </p>
+                  </div>
+                </Form>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
       </Container>
 
-      {/* Snackbar para mostrar errores */}
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={4000}
-        onClose={() => setSnackbarOpen(false)}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert
-          onClose={() => setSnackbarOpen(false)}
-          severity="error"
-          variant="filled"
-          sx={{ width: "100%" }}
-        >
-          {error}
-        </Alert>
-      </Snackbar>
-    </Box>
+      <style jsx>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-20px); }
+        }
+      `}</style>
+    </div>
   );
 };
 

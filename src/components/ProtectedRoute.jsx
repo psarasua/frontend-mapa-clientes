@@ -1,6 +1,6 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { Box, CircularProgress, Typography } from "@mui/material";
+import { Container, Row, Col, Spinner } from "react-bootstrap";
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -9,8 +9,8 @@ const ProtectedRoute = ({ children }) => {
   // Mostrar loading mientras se verifica la autenticación
   if (loading) {
     return (
-      <Box
-        sx={{
+      <div
+        style={{
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
@@ -19,23 +19,28 @@ const ProtectedRoute = ({ children }) => {
           background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
         }}
       >
-        <CircularProgress
-          size={60}
-          sx={{
-            color: "white",
-            mb: 2,
-          }}
-        />
-        <Typography
-          variant="h6"
-          sx={{
-            color: "white",
-            fontWeight: 500,
-          }}
-        >
-          Verificando autenticación...
-        </Typography>
-      </Box>
+        <Container>
+          <Row className="justify-content-center">
+            <Col xs={12} md={6} className="text-center">
+              <Spinner
+                animation="border"
+                role="status"
+                style={{
+                  width: '4rem',
+                  height: '4rem',
+                  color: 'white',
+                  marginBottom: '1rem'
+                }}
+              >
+                <span className="visually-hidden">Cargando...</span>
+              </Spinner>
+              <h5 className="text-white fw-normal">
+                Verificando autenticación...
+              </h5>
+            </Col>
+          </Row>
+        </Container>
+      </div>
     );
   }
 

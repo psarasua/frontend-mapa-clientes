@@ -1,291 +1,223 @@
-import { useState } from "react";
-import { useAuth } from "../contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { 
+  Container, 
+  Row, 
+  Col, 
+  Card, 
+  Button, 
+  Navbar, 
+  Nav, 
+  NavDropdown,
+  Badge
+} from 'react-bootstrap';
 import {
-  Box,
-  Container,
-  Typography,
-  Card,
-  CardContent,
-  Button,
-  Avatar,
-  Chip,
-  AppBar,
-  Toolbar,
-  IconButton,
-  Menu,
-  MenuItem,
-  Divider,
-} from "@mui/material";
-import {
-  LocationOn,
-  ExitToApp,
-  Person,
-  Dashboard as DashboardIcon,
-  MoreVert,
-} from "@mui/icons-material";
+  FaMapMarkerAlt,
+  FaSignOutAlt,
+  FaUser,
+  FaTachometerAlt,
+  FaUsers
+} from 'react-icons/fa';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [anchorEl, setAnchorEl] = useState(null);
-
-  const handleMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
 
   const handleLogout = () => {
     logout();
-    navigate("/login");
-    handleMenuClose();
-  };
-
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("es-ES", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
+    navigate('/login');
   };
 
   return (
-    <Box sx={{ flexGrow: 1, minHeight: "100vh", backgroundColor: "#f5f5f5" }}>
-      {/* App Bar */}
-      <AppBar
-        position="static"
-        sx={{
-          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-          boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+    <div style={{ minHeight: '100vh', backgroundColor: '#f8f9fa' }}>
+      {/* Navigation Bar */}
+      <Navbar 
+        expand="lg" 
+        className="shadow-sm"
+        style={{ 
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         }}
+        variant="dark"
       >
-        <Toolbar>
-          <LocationOn sx={{ mr: 2, fontSize: 28 }} />
-          <Typography
-            variant="h6"
-            component="div"
-            sx={{ flexGrow: 1, fontWeight: 600 }}
-          >
+        <Container>
+          <Navbar.Brand href="#" className="fw-bold d-flex align-items-center">
+            <FaMapMarkerAlt className="me-2" size={28} />
             Mapa de Clientes
-          </Typography>
-          <IconButton
-            size="large"
-            edge="end"
-            color="inherit"
-            aria-label="menu"
-            onClick={handleMenuOpen}
-          >
-            <MoreVert />
-          </IconButton>
-          <Menu
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={handleMenuClose}
-            transformOrigin={{ horizontal: "right", vertical: "top" }}
-            anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-          >
-            <MenuItem onClick={handleMenuClose}>
-              <Person sx={{ mr: 2 }} />
-              Mi Perfil
-            </MenuItem>
-            <Divider />
-            <MenuItem onClick={handleLogout} sx={{ color: "error.main" }}>
-              <ExitToApp sx={{ mr: 2 }} />
-              Cerrar Sesión
-            </MenuItem>
-          </Menu>
-        </Toolbar>
-      </AppBar>
+          </Navbar.Brand>
+          <Navbar.Toggle aria-controls="basic-navbar-nav" />
+          <Navbar.Collapse id="basic-navbar-nav">
+            <Nav className="ms-auto">
+              <NavDropdown
+                title={
+                  <span className="d-flex align-items-center">
+                    <FaUser className="me-1" />
+                    {user?.nombre_completo || user?.username}
+                  </span>
+                }
+                id="user-nav-dropdown"
+                align="end"
+              >
+                <NavDropdown.Item href="#">
+                  <FaUser className="me-2" />
+                  Mi Perfil
+                </NavDropdown.Item>
+                <NavDropdown.Divider />
+                <NavDropdown.Item onClick={handleLogout} className="text-danger">
+                  <FaSignOutAlt className="me-2" />
+                  Cerrar Sesión
+                </NavDropdown.Item>
+              </NavDropdown>
+            </Nav>
+          </Navbar.Collapse>
+        </Container>
+      </Navbar>
 
       {/* Main Content */}
-      <Container maxWidth="lg" sx={{ mt: 4, pb: 4 }}>
+      <Container className="py-4">
         {/* Welcome Section */}
-        <Card
-          sx={{
-            mb: 4,
-            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-            color: "white",
-            boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
+        <Card 
+          className="mb-4 border-0 shadow-sm text-white"
+          style={{ 
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
           }}
         >
-          <CardContent sx={{ p: 4 }}>
-            <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-              <Avatar
-                sx={{
-                  width: 80,
-                  height: 80,
-                  mr: 3,
-                  backgroundColor: "rgba(255,255,255,0.2)",
-                  fontSize: "2rem",
-                  fontWeight: "bold",
-                }}
-              >
-                {user?.nombre_completo
-                  ? user.nombre_completo.charAt(0).toUpperCase()
-                  : user?.username?.charAt(0).toUpperCase()}
-              </Avatar>
-              <Box>
-                <Typography
-                  variant="h4"
-                  component="h1"
-                  sx={{ fontWeight: "bold", mb: 1 }}
-                >
-                  ¡Bienvenido, {user?.nombre_completo || user?.username}!
-                </Typography>
-                <Typography variant="h6" sx={{ opacity: 0.9, mb: 2 }}>
-                  {user?.email}
-                </Typography>
-                <Chip
-                  icon={<Person />}
-                  label={`@${user?.username}`}
-                  sx={{
-                    backgroundColor: "rgba(255,255,255,0.2)",
-                    color: "white",
-                    fontWeight: 500,
+          <Card.Body className="p-4">
+            <Row className="align-items-center">
+              <Col xs={12} md={2} className="text-center text-md-start mb-3 mb-md-0">
+                <div
+                  className="rounded-circle d-inline-flex align-items-center justify-content-center text-white fw-bold"
+                  style={{
+                    width: '80px',
+                    height: '80px',
+                    backgroundColor: 'rgba(255,255,255,0.2)',
+                    fontSize: '2rem'
                   }}
-                />
-              </Box>
-            </Box>
-          </CardContent>
+                >
+                  {user?.nombre_completo ? user.nombre_completo.charAt(0).toUpperCase() : user?.username?.charAt(0).toUpperCase()}
+                </div>
+              </Col>
+              <Col xs={12} md={10}>
+                <h2 className="fw-bold mb-2">
+                  ¡Bienvenido, {user?.nombre_completo || user?.username}!
+                </h2>
+                <p className="mb-2 opacity-75 fs-5">{user?.email}</p>
+                <Badge 
+                  bg="light" 
+                  text="dark" 
+                  className="px-3 py-2"
+                >
+                  <FaUser className="me-1" />
+                  @{user?.username}
+                </Badge>
+              </Col>
+            </Row>
+          </Card.Body>
         </Card>
 
         {/* Dashboard Stats */}
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: { xs: "1fr", md: "1fr 1fr 1fr" },
-            gap: 3,
-            mb: 4,
-          }}
-        >
-          <Card
-            sx={{
-              textAlign: "center",
-              p: 3,
-              boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
-            }}
-          >
-            <DashboardIcon
-              sx={{ fontSize: 48, color: "primary.main", mb: 2 }}
-            />
-            <Typography variant="h6" gutterBottom>
-              Panel Principal
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Accede a todas las funciones del sistema
-            </Typography>
-          </Card>
+        <Row className="g-4 mb-4">
+          <Col xs={12} md={4}>
+            <Card className="h-100 border-0 shadow-sm text-center">
+              <Card.Body className="p-4">
+                <FaTachometerAlt 
+                  size={48} 
+                  className="text-primary mb-3" 
+                />
+                <Card.Title>Panel Principal</Card.Title>
+                <Card.Text className="text-muted">
+                  Accede a todas las funciones del sistema
+                </Card.Text>
+              </Card.Body>
+            </Card>
+          </Col>
 
-          <Card
-            sx={{
-              textAlign: "center",
-              p: 3,
-              boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
-            }}
-          >
-            <LocationOn sx={{ fontSize: 48, color: "success.main", mb: 2 }} />
-            <Typography variant="h6" gutterBottom>
-              Mapa de Clientes
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Visualiza y gestiona la ubicación de tus clientes
-            </Typography>
-          </Card>
+          <Col xs={12} md={4}>
+            <Card className="h-100 border-0 shadow-sm text-center">
+              <Card.Body className="p-4">
+                <FaMapMarkerAlt 
+                  size={48} 
+                  className="text-success mb-3" 
+                />
+                <Card.Title>Mapa de Clientes</Card.Title>
+                <Card.Text className="text-muted">
+                  Visualiza y gestiona la ubicación de tus clientes
+                </Card.Text>
+              </Card.Body>
+            </Card>
+          </Col>
 
-          <Card
-            sx={{
-              textAlign: "center",
-              p: 3,
-              boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
-            }}
-          >
-            <Person sx={{ fontSize: 48, color: "info.main", mb: 2 }} />
-            <Typography variant="h6" gutterBottom>
-              Gestión de Usuarios
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Administra usuarios y permisos del sistema
-            </Typography>
-          </Card>
-        </Box>
+          <Col xs={12} md={4}>
+            <Card className="h-100 border-0 shadow-sm text-center">
+              <Card.Body className="p-4">
+                <FaUsers 
+                  size={48} 
+                  className="text-info mb-3" 
+                />
+                <Card.Title>Gestión de Usuarios</Card.Title>
+                <Card.Text className="text-muted">
+                  Administra usuarios y permisos del sistema
+                </Card.Text>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
 
         {/* User Information Card */}
-        <Card sx={{ boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }}>
-          <CardContent sx={{ p: 4 }}>
-            <Typography
-              variant="h6"
-              gutterBottom
-              sx={{ fontWeight: 600, mb: 3 }}
-            >
-              Información de la Cuenta
-            </Typography>
+        <Card className="border-0 shadow-sm">
+          <Card.Header className="bg-white py-3">
+            <h5 className="mb-0 fw-bold">Información de la Cuenta</h5>
+          </Card.Header>
+          <Card.Body className="p-4">
+            <Row>
+              <Col xs={12} md={6}>
+                <div className="mb-3">
+                  <strong className="text-muted d-block">Nombre Completo</strong>
+                  <span className="fs-5">
+                    {user?.nombre_completo || 'No especificado'}
+                  </span>
+                </div>
 
-            <Box
-              sx={{
-                display: "grid",
-                gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
-                gap: 3,
-              }}
-            >
-              <Box>
-                <Typography variant="body2" color="text.secondary" gutterBottom>
-                  Nombre Completo
-                </Typography>
-                <Typography variant="body1" sx={{ fontWeight: 500, mb: 2 }}>
-                  {user?.nombre_completo || "No especificado"}
-                </Typography>
+                <div className="mb-3">
+                  <strong className="text-muted d-block">Usuario</strong>
+                  <span className="fs-5">{user?.username}</span>
+                </div>
+              </Col>
 
-                <Typography variant="body2" color="text.secondary" gutterBottom>
-                  Usuario
-                </Typography>
-                <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                  {user?.username}
-                </Typography>
-              </Box>
+              <Col xs={12} md={6}>
+                <div className="mb-3">
+                  <strong className="text-muted d-block">Correo Electrónico</strong>
+                  <span className="fs-5">{user?.email}</span>
+                </div>
 
-              <Box>
-                <Typography variant="body2" color="text.secondary" gutterBottom>
-                  Correo Electrónico
-                </Typography>
-                <Typography variant="body1" sx={{ fontWeight: 500, mb: 2 }}>
-                  {user?.email}
-                </Typography>
+                <div className="mb-3">
+                  <strong className="text-muted d-block">ID de Usuario</strong>
+                  <span className="fs-5">#{user?.id}</span>
+                </div>
+              </Col>
+            </Row>
 
-                <Typography variant="body2" color="text.secondary" gutterBottom>
-                  ID de Usuario
-                </Typography>
-                <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                  #{user?.id}
-                </Typography>
-              </Box>
-            </Box>
+            <hr className="my-4" />
 
-            <Divider sx={{ my: 3 }} />
-
-            <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-              <Button
-                variant="outlined"
-                startIcon={<Person />}
-                onClick={() => alert("Función próximamente disponible")}
+            <div className="d-flex flex-wrap gap-2">
+              <Button 
+                variant="outline-primary" 
+                onClick={() => alert('Función próximamente disponible')}
               >
+                <FaUser className="me-1" />
                 Editar Perfil
               </Button>
-              <Button
-                variant="outlined"
-                color="error"
-                startIcon={<ExitToApp />}
+              <Button 
+                variant="outline-danger" 
                 onClick={handleLogout}
               >
+                <FaSignOutAlt className="me-1" />
                 Cerrar Sesión
               </Button>
-            </Box>
-          </CardContent>
+            </div>
+          </Card.Body>
         </Card>
       </Container>
-    </Box>
+    </div>
   );
 };
 
