@@ -8,6 +8,8 @@ import {
   flexRender,
 } from "@tanstack/react-table";
 import Layout from "./Layout";
+import ClientMapModal from "./ClientMapModal";
+import ClientDetailsModal from "./ClientDetailsModal";
 import {
   getClientes,
   deleteCliente,
@@ -25,11 +27,10 @@ import {
   InputGroup,
   Pagination,
   Dropdown,
-  Modal,
   Spinner,
   Alert,
 } from "react-bootstrap";
-import { FaSort, FaSortUp, FaSortDown } from "react-icons/fa";
+import { FaSort, FaSortUp, FaSortDown, FaMapMarkerAlt } from "react-icons/fa";
 
 const ClientesTable = () => {
   // Estados para la tabla
@@ -39,6 +40,8 @@ const ClientesTable = () => {
   const [globalFilter, setGlobalFilter] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [selectedClient, setSelectedClient] = useState(null);
+  const [showMapModal, setShowMapModal] = useState(false);
+  const [selectedClientForMap, setSelectedClientForMap] = useState(null);
 
   // Datos de ejemplo (simulando clientes según estructura BD)
   const sampleData = useMemo(
@@ -205,6 +208,11 @@ const ClientesTable = () => {
     alert("Función de agregar cliente próximamente");
   }, []);
 
+  const handleShowLocation = useCallback((client) => {
+    setSelectedClientForMap(client);
+    setShowMapModal(true);
+  }, []);
+
   // Definición de columnas
   const columns = useMemo(
     () => [
@@ -288,6 +296,18 @@ const ClientesTable = () => {
               Editar
             </Button>
             <Button
+              variant="outline-info"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation(); // Evitar que se active el click de la fila
+                handleShowLocation(row.original);
+              }}
+              title="Ver ubicación"
+              disabled={!row.original.latitud || !row.original.longitud}
+            >
+              <FaMapMarkerAlt />
+            </Button>
+            <Button
               variant="outline-danger"
               size="sm"
               onClick={(e) => {
@@ -302,7 +322,7 @@ const ClientesTable = () => {
         ),
       },
     ],
-    [handleEditClient, handleDeleteClient] // Dependencias correctas
+    [handleEditClient, handleDeleteClient, handleShowLocation] // Dependencias correctas
   );
 
   // Configuración de la tabla
@@ -526,93 +546,20 @@ const ClientesTable = () => {
           </Card.Body>
         </Card>
 
+        {/* Modal de Mapa */}
+        <ClientMapModal
+          show={showMapModal}
+          onHide={() => setShowMapModal(false)}
+          client={selectedClientForMap}
+        />
+
         {/* Modal de Detalles */}
-        <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
-          <Modal.Header closeButton>
-            <Modal.Title>Detalles del Cliente</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            {selectedClient && (
-              <Row>
-                <Col md={6}>
-                  <h6 className="text-muted">Información de Contacto</h6>
-                  <div className="mb-3">
-                    <strong>Nombre del Contacto:</strong>{" "}
-                    {selectedClient.nombre}
-                  </div>
-                  <div className="mb-3">
-                    <strong>Teléfono:</strong> {selectedClient.telefono}
-                  </div>
-                  <div className="mb-3">
-                    <strong>RUT:</strong> {selectedClient.rut}
-                  </div>
-                  {selectedClient.codigoalte && (
-                    <div className="mb-3">
-                      <strong>Código Alternativo:</strong>{" "}
-                      {selectedClient.codigoalte}
-                    </div>
-                  )}
-                  <div className="mb-3">
-                    <strong>Estado:</strong>{" "}
-                    <Badge
-                      bg={
-                        selectedClient.estado === "Activo"
-                          ? "success"
-                          : selectedClient.estado === "Inactivo"
-                          ? "danger"
-                          : "warning"
-                      }
-                    >
-                      {selectedClient.estado.toUpperCase()}
-                    </Badge>
-                  </div>
-                </Col>
-                <Col md={6}>
-                  <h6 className="text-muted">Información Empresarial</h6>
-                  <div className="mb-3">
-                    <strong>Razón Social:</strong> {selectedClient.empresa}
-                  </div>
-                  <div className="mb-3">
-                    <strong>Dirección:</strong> {selectedClient.direccion}
-                  </div>
-                  {selectedClient.fechaRegistro && (
-                    <div className="mb-3">
-                      <strong>Fecha de Registro:</strong>{" "}
-                      {new Date(
-                        selectedClient.fechaRegistro
-                      ).toLocaleDateString("es-ES")}
-                    </div>
-                  )}
-                  {selectedClient.latitud && selectedClient.longitud && (
-                    <div className="mb-3">
-                      <strong>Coordenadas GPS:</strong>
-                      <br />
-                      <small className="text-muted">
-                        Lat: {selectedClient.latitud}
-                        <br />
-                        Lng: {selectedClient.longitud}
-                      </small>
-                    </div>
-                  )}
-                </Col>
-              </Row>
-            )}
-          </Modal.Body>
-          <Modal.Footer>
-            <Button
-              variant="outline-secondary"
-              onClick={() => setShowModal(false)}
-            >
-              Cerrar
-            </Button>
-            <Button
-              variant="primary"
-              onClick={() => handleEditClient(selectedClient)}
-            >
-              Editar Cliente
-            </Button>
-          </Modal.Footer>
-        </Modal>
+        <ClientDetailsModal
+          show={showModal}
+          onHide={() => setShowModal(false)}
+          client={selectedClient}
+          onEdit={handleEditClient}
+        />
       </Container>
     </Layout>
   );
