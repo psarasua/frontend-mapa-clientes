@@ -1,23 +1,24 @@
-import { useAuth } from '../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import { 
-  Container, 
-  Row, 
-  Col, 
-  Card, 
-  Button, 
-  Navbar, 
-  Nav, 
-  NavDropdown,
-  Badge
-} from 'react-bootstrap';
+import { useAuth } from "../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+import Layout from "./Layout";
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  Button,
+  Badge,
+  ProgressBar,
+} from "react-bootstrap";
 import {
   FaMapMarkerAlt,
   FaSignOutAlt,
   FaUser,
   FaTachometerAlt,
-  FaUsers
-} from 'react-icons/fa';
+  FaUsers,
+  FaFileAlt,
+  FaCalendarAlt,
+} from "react-icons/fa";
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -25,199 +26,196 @@ const Dashboard = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate("/login");
   };
 
-  return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f8f9fa' }}>
-      {/* Navigation Bar */}
-      <Navbar 
-        expand="lg" 
-        className="shadow-sm"
-        style={{ 
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        }}
-        variant="dark"
-      >
-        <Container>
-          <Navbar.Brand href="#" className="fw-bold d-flex align-items-center">
-            <FaMapMarkerAlt className="me-2" size={28} />
-            Mapa de Clientes
-          </Navbar.Brand>
-          <Navbar.Toggle aria-controls="basic-navbar-nav" />
-          <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="ms-auto">
-              <NavDropdown
-                title={
-                  <span className="d-flex align-items-center">
-                    <FaUser className="me-1" />
-                    {user?.nombre_completo || user?.username}
-                  </span>
-                }
-                id="user-nav-dropdown"
-                align="end"
-              >
-                <NavDropdown.Item href="#">
-                  <FaUser className="me-2" />
-                  Mi Perfil
-                </NavDropdown.Item>
-                <NavDropdown.Divider />
-                <NavDropdown.Item onClick={handleLogout} className="text-danger">
-                  <FaSignOutAlt className="me-2" />
-                  Cerrar Sesión
-                </NavDropdown.Item>
-              </NavDropdown>
-            </Nav>
-          </Navbar.Collapse>
-        </Container>
-      </Navbar>
+  const stats = [
+    {
+      title: "Clientes Activos",
+      value: "1,234",
+      icon: FaUsers,
+      color: "primary",
+      change: "+12%",
+    },
+    {
+      title: "Ubicaciones",
+      value: "567",
+      icon: FaMapMarkerAlt,
+      color: "success",
+      change: "+8%",
+    },
+    {
+      title: "Reportes",
+      value: "89",
+      icon: FaFileAlt,
+      color: "warning",
+      change: "+23%",
+    },
+    {
+      title: "Eventos",
+      value: "45",
+      icon: FaCalendarAlt,
+      color: "info",
+      change: "+5%",
+    },
+  ];
 
-      {/* Main Content */}
+  return (
+    <Layout>
       <Container className="py-4">
-        {/* Welcome Section */}
-        <Card 
-          className="mb-4 border-0 shadow-sm text-white"
-          style={{ 
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          }}
-        >
-          <Card.Body className="p-4">
-            <Row className="align-items-center">
-              <Col xs={12} md={2} className="text-center text-md-start mb-3 mb-md-0">
+        {/* Header */}
+        <div className="mb-4">
+          <h2 className="fw-bold text-dark mb-2">
+            Bienvenido, {user?.nombre_completo || user?.username}
+          </h2>
+          <p className="text-muted mb-0">
+            Aquí tienes un resumen de tu actividad y estadísticas principales
+          </p>
+        </div>
+
+        {/* Stats Cards */}
+        <Row className="g-4 mb-4">
+          {stats.map((stat, index) => (
+            <Col xs={12} sm={6} lg={3} key={index}>
+              <Card className="h-100 border-0 shadow-sm">
+                <Card.Body>
+                  <div className="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                      <p className="text-muted mb-1 small">{stat.title}</p>
+                      <h4 className="fw-bold mb-0">{stat.value}</h4>
+                    </div>
+                    <div
+                      className={`rounded-circle d-flex align-items-center justify-content-center text-${stat.color}`}
+                      style={{
+                        width: "48px",
+                        height: "48px",
+                        backgroundColor: `var(--bs-${stat.color})`,
+                        opacity: 0.1,
+                      }}
+                    >
+                      <stat.icon size={20} />
+                    </div>
+                  </div>
+                  <div className="d-flex align-items-center">
+                    <Badge bg={stat.color} className="me-2">
+                      {stat.change}
+                    </Badge>
+                    <small className="text-muted">vs mes anterior</small>
+                  </div>
+                </Card.Body>
+              </Card>
+            </Col>
+          ))}
+        </Row>
+
+        {/* Main Dashboard Content */}
+        <Row className="g-4">
+          {/* User Profile Card */}
+          <Col lg={4}>
+            <Card className="h-100 border-0 shadow-sm">
+              <Card.Header className="bg-white border-bottom">
+                <h6 className="mb-0 fw-bold">Información del Usuario</h6>
+              </Card.Header>
+              <Card.Body className="text-center">
                 <div
-                  className="rounded-circle d-inline-flex align-items-center justify-content-center text-white fw-bold"
+                  className="rounded-circle d-inline-flex align-items-center justify-content-center text-white fw-bold mb-3"
                   style={{
-                    width: '80px',
-                    height: '80px',
-                    backgroundColor: 'rgba(255,255,255,0.2)',
-                    fontSize: '2rem'
+                    width: "80px",
+                    height: "80px",
+                    background:
+                      "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                    fontSize: "1.5rem",
                   }}
                 >
-                  {user?.nombre_completo ? user.nombre_completo.charAt(0).toUpperCase() : user?.username?.charAt(0).toUpperCase()}
+                  {user?.nombre_completo?.charAt(0)?.toUpperCase() ||
+                    user?.username?.charAt(0)?.toUpperCase()}
                 </div>
-              </Col>
-              <Col xs={12} md={10}>
-                <h2 className="fw-bold mb-2">
-                  ¡Bienvenido, {user?.nombre_completo || user?.username}!
-                </h2>
-                <p className="mb-2 opacity-75 fs-5">{user?.email}</p>
-                <Badge 
-                  bg="light" 
-                  text="dark" 
-                  className="px-3 py-2"
-                >
-                  <FaUser className="me-1" />
-                  @{user?.username}
+
+                <h5 className="fw-bold mb-1">
+                  {user?.nombre_completo || user?.username}
+                </h5>
+                <p className="text-muted mb-3">{user?.email}</p>
+
+                <Badge bg="primary" className="mb-3">
+                  ID: #{user?.id}
                 </Badge>
-              </Col>
-            </Row>
-          </Card.Body>
-        </Card>
 
-        {/* Dashboard Stats */}
-        <Row className="g-4 mb-4">
-          <Col xs={12} md={4}>
-            <Card className="h-100 border-0 shadow-sm text-center">
-              <Card.Body className="p-4">
-                <FaTachometerAlt 
-                  size={48} 
-                  className="text-primary mb-3" 
-                />
-                <Card.Title>Panel Principal</Card.Title>
-                <Card.Text className="text-muted">
-                  Accede a todas las funciones del sistema
-                </Card.Text>
+                <div className="d-grid gap-2">
+                  <Button variant="outline-primary" size="sm">
+                    <FaUser className="me-2" />
+                    Editar Perfil
+                  </Button>
+                  <Button
+                    variant="outline-danger"
+                    size="sm"
+                    onClick={handleLogout}
+                  >
+                    <FaSignOutAlt className="me-2" />
+                    Cerrar Sesión
+                  </Button>
+                </div>
               </Card.Body>
             </Card>
           </Col>
 
-          <Col xs={12} md={4}>
-            <Card className="h-100 border-0 shadow-sm text-center">
-              <Card.Body className="p-4">
-                <FaMapMarkerAlt 
-                  size={48} 
-                  className="text-success mb-3" 
-                />
-                <Card.Title>Mapa de Clientes</Card.Title>
-                <Card.Text className="text-muted">
-                  Visualiza y gestiona la ubicación de tus clientes
-                </Card.Text>
-              </Card.Body>
-            </Card>
-          </Col>
+          {/* Activity Chart */}
+          <Col lg={8}>
+            <Card className="h-100 border-0 shadow-sm">
+              <Card.Header className="bg-white border-bottom">
+                <h6 className="mb-0 fw-bold">Actividad Reciente</h6>
+              </Card.Header>
+              <Card.Body>
+                <div className="mb-4">
+                  <div className="d-flex justify-content-between align-items-center mb-2">
+                    <span className="small">Progreso mensual</span>
+                    <span className="small fw-bold">75%</span>
+                  </div>
+                  <ProgressBar
+                    now={75}
+                    variant="primary"
+                    style={{ height: "8px" }}
+                  />
+                </div>
 
-          <Col xs={12} md={4}>
-            <Card className="h-100 border-0 shadow-sm text-center">
-              <Card.Body className="p-4">
-                <FaUsers 
-                  size={48} 
-                  className="text-info mb-3" 
-                />
-                <Card.Title>Gestión de Usuarios</Card.Title>
-                <Card.Text className="text-muted">
-                  Administra usuarios y permisos del sistema
-                </Card.Text>
+                <div className="mb-4">
+                  <div className="d-flex justify-content-between align-items-center mb-2">
+                    <span className="small">Clientes procesados</span>
+                    <span className="small fw-bold">60%</span>
+                  </div>
+                  <ProgressBar
+                    now={60}
+                    variant="success"
+                    style={{ height: "8px" }}
+                  />
+                </div>
+
+                <div className="mb-4">
+                  <div className="d-flex justify-content-between align-items-center mb-2">
+                    <span className="small">Reportes generados</span>
+                    <span className="small fw-bold">90%</span>
+                  </div>
+                  <ProgressBar
+                    now={90}
+                    variant="warning"
+                    style={{ height: "8px" }}
+                  />
+                </div>
+
+                <div className="text-center pt-3">
+                  <p className="text-muted mb-3">
+                    Sistema funcionando correctamente
+                  </p>
+                  <Button variant="primary">
+                    <FaTachometerAlt className="me-2" />
+                    Ver Detalles
+                  </Button>
+                </div>
               </Card.Body>
             </Card>
           </Col>
         </Row>
-
-        {/* User Information Card */}
-        <Card className="border-0 shadow-sm">
-          <Card.Header className="bg-white py-3">
-            <h5 className="mb-0 fw-bold">Información de la Cuenta</h5>
-          </Card.Header>
-          <Card.Body className="p-4">
-            <Row>
-              <Col xs={12} md={6}>
-                <div className="mb-3">
-                  <strong className="text-muted d-block">Nombre Completo</strong>
-                  <span className="fs-5">
-                    {user?.nombre_completo || 'No especificado'}
-                  </span>
-                </div>
-
-                <div className="mb-3">
-                  <strong className="text-muted d-block">Usuario</strong>
-                  <span className="fs-5">{user?.username}</span>
-                </div>
-              </Col>
-
-              <Col xs={12} md={6}>
-                <div className="mb-3">
-                  <strong className="text-muted d-block">Correo Electrónico</strong>
-                  <span className="fs-5">{user?.email}</span>
-                </div>
-
-                <div className="mb-3">
-                  <strong className="text-muted d-block">ID de Usuario</strong>
-                  <span className="fs-5">#{user?.id}</span>
-                </div>
-              </Col>
-            </Row>
-
-            <hr className="my-4" />
-
-            <div className="d-flex flex-wrap gap-2">
-              <Button 
-                variant="outline-primary" 
-                onClick={() => alert('Función próximamente disponible')}
-              >
-                <FaUser className="me-1" />
-                Editar Perfil
-              </Button>
-              <Button 
-                variant="outline-danger" 
-                onClick={handleLogout}
-              >
-                <FaSignOutAlt className="me-1" />
-                Cerrar Sesión
-              </Button>
-            </div>
-          </Card.Body>
-        </Card>
       </Container>
-    </div>
+    </Layout>
   );
 };
 

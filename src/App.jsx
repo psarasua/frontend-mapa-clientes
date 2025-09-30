@@ -10,6 +10,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./components/Login";
 import Registro from "./components/Registro";
 import Dashboard from "./components/Dashboard";
+import ClientesTable from "./components/ClientesTable";
 import "./App.css";
 
 function App() {
@@ -27,6 +28,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/clientes"
+            element={
+              <ProtectedRoute>
+                <ClientesTable />
               </ProtectedRoute>
             }
           />
