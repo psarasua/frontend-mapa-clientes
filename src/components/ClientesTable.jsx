@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useCallback } from "react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -10,11 +10,7 @@ import {
 import Layout from "./Layout";
 import ClientMapModal from "./ClientMapModal";
 import ClientDetailsModal from "./ClientDetailsModal";
-import {
-  getClientes,
-  deleteCliente,
-  formatClienteForTable,
-} from "../services/clientesService.js";
+import { useClientes, useDeleteCliente } from "../hooks/useClientes";
 import {
   Container,
   Card,
@@ -33,140 +29,28 @@ import {
 import { FaSort, FaSortUp, FaSortDown, FaMapMarkerAlt } from "react-icons/fa";
 
 const ClientesTable = () => {
-  // Estados para la tabla
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  // React Query hooks
+  const {
+    data: clientesData = [],
+    isLoading,
+    isError,
+    error: queryError,
+    refetch,
+  } = useClientes();
+
+  const deleteClienteMutation = useDeleteCliente();
+
+  // Estados para modales y filtros
   const [globalFilter, setGlobalFilter] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [selectedClient, setSelectedClient] = useState(null);
   const [showMapModal, setShowMapModal] = useState(false);
   const [selectedClientForMap, setSelectedClientForMap] = useState(null);
 
-  // Datos de ejemplo (simulando clientes según estructura BD)
-  const sampleData = useMemo(
-    () => [
-      {
-        id: 1,
-        codigoalte: "CLI001",
-        razonsocial: "Tech Solutions S.L.",
-        nombre: "Juan Pérez",
-        direccion: "Calle Mayor 123, Madrid",
-        telefono: "+56 9 1234 5678",
-        rut: "12.345.678-9",
-        estado: "Activo",
-        longitud: -70.6483,
-        latitud: -33.4489,
-        // Campos adicionales para UI
-        empresa: "Tech Solutions S.L.",
-        email: "No especificado",
-        fechaRegistro: "2024-01-15",
-        ultimaActividad: "2024-03-20",
-      },
-      {
-        id: 2,
-        codigoalte: "CLI002",
-        razonsocial: "Innovate Corp",
-        nombre: "María García",
-        direccion: "Avenida Libertad 456, Barcelona",
-        telefono: "+56 9 8765 4321",
-        rut: "98.765.432-1",
-        estado: "Activo",
-        longitud: -70.5045,
-        latitud: -33.4372,
-        // Campos adicionales para UI
-        empresa: "Innovate Corp",
-        email: "No especificado",
-        fechaRegistro: "2024-02-10",
-        ultimaActividad: "2024-03-18",
-      },
-      {
-        id: 3,
-        codigoalte: "CLI003",
-        razonsocial: "Global Services",
-        nombre: "Carlos López",
-        direccion: "Plaza Central 789, Valencia",
-        telefono: "+56 9 5555 1234",
-        rut: "11.222.333-4",
-        estado: "Inactivo",
-        longitud: -70.6692,
-        latitud: -33.4734,
-        // Campos adicionales para UI
-        empresa: "Global Services",
-        email: "No especificado",
-        fechaRegistro: "2024-01-20",
-        ultimaActividad: "2024-02-15",
-      },
-      {
-        id: 4,
-        codigoalte: "CLI004",
-        razonsocial: "Digital Agency",
-        nombre: "Ana Martínez",
-        direccion: "Calle Innovación 321, Sevilla",
-        telefono: "+56 9 7777 8888",
-        rut: "44.555.666-7",
-        estado: "Activo",
-        longitud: -70.6506,
-        latitud: -33.4378,
-        // Campos adicionales para UI
-        empresa: "Digital Agency",
-        email: "No especificado",
-        fechaRegistro: "2024-03-01",
-        ultimaActividad: "2024-03-19",
-      },
-      {
-        id: 5,
-        codigoalte: "CLI005",
-        razonsocial: "StartUp Hub",
-        nombre: "Roberto Silva",
-        direccion: "Paseo Tecnológico 654, Bilbao",
-        telefono: "+56 9 4444 5555",
-        rut: "77.888.999-0",
-        estado: "Pendiente",
-        longitud: -70.6344,
-        latitud: -33.456,
-        // Campos adicionales para UI
-        empresa: "StartUp Hub",
-        email: "No especificado",
-        fechaRegistro: "2024-03-15",
-        ultimaActividad: "2024-03-21",
-      },
-    ],
-    []
-  );
-
-  // Cargar clientes al montar el componente
-  useEffect(() => {
-    loadClientes();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Función para cargar clientes desde la API
-  const loadClientes = useCallback(async () => {
-    setLoading(true);
-    setError("");
-
-    try {
-      const result = await getClientes();
-
-      if (result.success) {
-        // Formatear datos para la tabla
-        const formattedData = result.data.map((cliente) =>
-          formatClienteForTable(cliente)
-        );
-        setData(formattedData);
-      } else {
-        setError(result.error || "Error al cargar clientes");
-        // Usar datos de ejemplo en caso de error
-        setData(sampleData);
-      }
-    } catch {
-      setError("Error de conexión con el servidor");
-      // Usar datos de ejemplo en caso de error
-      setData(sampleData);
-    } finally {
-      setLoading(false);
-    }
-  }, [sampleData]);
+  // Función para recargar clientes manualmente (para botón de retry)
+  const handleRetry = useCallback(() => {
+    refetch();
+  }, [refetch]);
 
   // Handlers para acciones CRUD
   const handleViewClient = useCallback((client) => {
@@ -182,25 +66,15 @@ const ClientesTable = () => {
   const handleDeleteClient = useCallback(
     async (client) => {
       if (window.confirm(`¿Estás seguro de eliminar a ${client.nombre}?`)) {
-        setLoading(true);
         try {
-          const result = await deleteCliente(client.id);
-
-          if (result.success) {
-            // Recargar datos después de eliminar
-            await loadClientes();
-            alert(`Cliente ${client.nombre} eliminado exitosamente`);
-          } else {
-            setError(result.error || "Error al eliminar cliente");
-          }
-        } catch {
-          setError("Error de conexión al eliminar cliente");
-        } finally {
-          setLoading(false);
+          await deleteClienteMutation.mutateAsync(client.id);
+          alert(`Cliente ${client.nombre} eliminado exitosamente`);
+        } catch (error) {
+          alert(`Error al eliminar cliente: ${error.message}`);
         }
       }
     },
-    [loadClientes]
+    [deleteClienteMutation]
   );
 
   const handleAddClient = useCallback(() => {
@@ -327,7 +201,7 @@ const ClientesTable = () => {
 
   // Configuración de la tabla
   const table = useReactTable({
-    data: data, // Usar datos reales en lugar de sampleData
+    data: clientesData, // Usar datos de React Query
     columns,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -401,28 +275,33 @@ const ClientesTable = () => {
               </Row>
             </div>
             {/* Error Alert */}
-            {error && (
+            {isError && (
               <Alert variant="danger" className="mx-3 mt-3 mb-0">
-                <strong>Error:</strong> {error}
+                <strong>Error:</strong>{" "}
+                {queryError?.message || "Error al cargar clientes"}
                 <Button
                   variant="outline-danger"
                   size="sm"
                   className="ms-2"
-                  onClick={loadClientes}
+                  onClick={handleRetry}
                 >
                   Reintentar
                 </Button>
               </Alert>
             )}
             {/* Loading Spinner */}
-            {loading && (
+            {(isLoading || deleteClienteMutation.isPending) && (
               <div className="d-flex justify-content-center align-items-center p-4">
                 <Spinner
                   animation="border"
                   variant="primary"
                   className="me-2"
                 />
-                <span>Cargando clientes...</span>
+                <span>
+                  {deleteClienteMutation.isPending
+                    ? "Eliminando cliente..."
+                    : "Cargando clientes..."}
+                </span>
               </div>
             )}{" "}
             {/* Tabla */}
